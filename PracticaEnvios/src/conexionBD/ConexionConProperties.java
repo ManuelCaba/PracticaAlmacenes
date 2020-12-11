@@ -17,8 +17,8 @@ public class ConexionConProperties {
         if (tipo == 1){
             // Cadena de conexión
             url = "jdbc:sqlserver://localhost";
-            propiedadesConexion.put("user","pepito");
-            propiedadesConexion.put("password","qq");
+            propiedadesConexion.put("user","prueba");
+            propiedadesConexion.put("password","123");
             propiedadesConexion.put("useUnicode","true");
             propiedadesConexion.put("characterEncoding","utf8");
         }

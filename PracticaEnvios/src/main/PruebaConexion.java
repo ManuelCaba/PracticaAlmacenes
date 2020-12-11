@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import conexionBD.MiConexion;
+import conexionBD.ConexionConProperties;
 
 public class PruebaConexion 
 {
@@ -44,7 +44,7 @@ public class PruebaConexion
 		
 		try 
 		{
-			Connection conexion = MiConexion.getConexion();
+			Connection conexion = ConexionConProperties.getConexion((byte) 1);
 			
 			PreparedStatement statement;
 			String query = null;
