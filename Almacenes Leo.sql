@@ -37,3 +37,16 @@ sp_settriggerorder @triggername = 'FechaAsignacion', @order = 'last', @stmttype 
 SELECT * FROM Envios
 SELECT * FROM Asignaciones
 
+SELECT D.IDAlmacen2 FROM Distancias AS D
+INNER JOIN
+(
+	SELECT IDAlmacen1, MIN(Distancia) AS MinimaDistancia FROM Distancias
+	GROUP BY IDAlmacen1
+) AS M ON D.Distancia = M.MinimaDistancia AND D.IDAlmacen1 = M.IDAlmacen1
+WHERE D.IDAlmacen1 = 20
+
+SELECT * FROM Distancias
+
+
+
+
