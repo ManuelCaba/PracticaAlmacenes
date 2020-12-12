@@ -1,131 +1,98 @@
 package main;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-
-import conexionBD.ConexionConProperties;
+import subprogramas.MetodosAsignacionEnvios;
+import validaciones.Validaciones;
 
 public class PruebaConexion 
 {
 
 	public static void main(String[] args) 
 	{
-		// TODO Auto-generated method stub
+		char opcion;
+		int idEnvio;
+		int idAlmacen = 0;
+		boolean envioAsignado = false;
+		ResultSet rsEnvios;
 		
-		ResultSet rs = listadoPedidosSinAsignar();
-
-		try {
-			while(rs.next())
-			{
-				System.out.println(rs.getInt(1)+" | "+rs.getInt(2)+" | "+rs.getInt(3));
-			}
-			
-			//System.out.println(obtenerContenedores(rs, 5));
-			System.out.println(almacenFavorito(rs, 5));
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	/*
-     * Método que devuelve un objeto ResultSet con el listado de los envios de una base de datos
-     * por asignar.
-     * Signatura: public ResultSet listadoPedidosSinAsignar();
-     * Entradas: No hay
-     * Precondiciones: No tiene
-     * Salidas: ResultSet listadoEnvios
-     * Postcondiciones: Se devolverá un objeto ResultSet asociado al nombre con el listado de
-     *                     envíos por asignar. En caso de error se lanzará una excepción SQLException.
-     **/
-    public static ResultSet listadoPedidosSinAsignar()
-    {
-        ResultSet listadoEnvios = null;
-
-        try 
-        {
-            Connection conexion = ConexionConProperties.getConexion((byte) 1);
-
-            Statement statement;
-            String query = null;
-
-            try {
-
-                if(conexion != null)
-                {
-                    query = "SELECT E.ID, E.NumeroContenedores, E.AlmacenPreferido FROM Envios AS E\r\n"
-                            + "LEFT JOIN Asignaciones AS A ON E.ID = A.IDEnvio WHERE A.IDAlmacen IS NULL\r\n";
-
-
-                    statement = conexion.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-                    listadoEnvios = statement.executeQuery(query);
-                }
-
-            } catch (SQLException e) 
-            {
-                e.printStackTrace();
-            }
-
-        } catch (SQLException e) 
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return listadoEnvios;
-    }
-	
-	
-	public static int obtenerContenedores(ResultSet  rs, int id) {
+		Validaciones validaciones = new Validaciones();
+		MetodosAsignacionEnvios metodos = new MetodosAsignacionEnvios();
 		
-		boolean coincidencia = false;
-		int contenedores = 0;
+		//Leer Y Validar Asignar Envio
+		opcion = validaciones.leerYValidarAsignarEnvio();
 		
-		try {
-			rs.beforeFirst();	
+		while(opcion == 'S')
+		{
+			rsEnvios = metodos.listadoPedidosSinAsignar();
 			
-			while(rs.next() && coincidencia == false) {
-				if(rs.getInt(1) == id) {
-					contenedores = rs.getInt(2);
-					coincidencia = true;
+			try {
+				while(rsEnvios.next())
+				{
+					System.out.println(rsEnvios.getInt(1)+" | "+rsEnvios.getInt(2)+" | "+rsEnvios.getInt(3));
 				}
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return contenedores;
-	}
-	
-	
-	public static int almacenFavorito(ResultSet rs, int id) {
-		
-		boolean coincidencia = false;
-		int almacenFavorito = 0;
-		
-		try {
-			
-			rs.beforeFirst();	
-			
-			while(rs.next() && coincidencia == false) {
-				if(rs.getInt(1) == id) {
-					almacenFavorito = rs.getInt(3);
-					coincidencia = true;
+				
+				idEnvio = validaciones.leerYValidarIDenvio();
+				
+				if(metodos.existeEnvio(rsEnvios, idEnvio))
+				{
+					do
+					{
+						if(idAlmacen != 0 && !envioAsignado) //Si no se ha podido asignar en el anterior almacén
+						{
+							
+							if(opcion == 'S') //Si aún quiere probar con otro almacén
+							{
+								//Buscar almacén más cercano
+								idAlmacen = metodos.almancenCercano(idAlmacen);
+							}
+						}
+						else //Si todavía no se ha buscado su almacén favorito
+						{
+							idAlmacen = metodos.almacenFavorito(rsEnvios, idEnvio);
+						}
+						
+						if(idAlmacen != -1) //Si hay almacenes para asignar disponibles
+						{
+							opcion = validaciones.leerYValidarAsignarEnAlmacen(idAlmacen);
+							
+							if(opcion == 'S') //Confirmar si quiere asignarla en el almacén encontrado
+							{
+								envioAsignado = metodos.asignarEnvio(idEnvio, idAlmacen);
+								
+								if(!envioAsignado) //Si no se ha podido asignar
+								{
+									opcion = validaciones.leerYValidarProbarOtroAlmacen();
+								}
+								else
+								{
+									System.out.println("Envio asignado con exito!");
+								}
+								
+							}
+						}
+						else
+						{
+							System.out.println("No hay almacenes cercanos");
+						}
+
+
+					}
+					while(idAlmacen != 0 && !envioAsignado && opcion == 'S');
+					
+					idAlmacen = 0;
 				}
+				else
+				{
+					System.out.println("El envio elegido no es correcto");
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			opcion = validaciones.leerYValidarAsignarEnvio();
 		}
-		
-		return almacenFavorito;
 	}
-	
 	
 }

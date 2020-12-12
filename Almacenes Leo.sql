@@ -16,3 +16,24 @@ BEGIN
 			ROLLBACK
 		END
 END
+
+GO
+CREATE OR ALTER TRIGGER FechaAsignacion ON Asignaciones AFTER INSERT AS
+BEGIN
+		SELECT * FROM inserted
+		UPDATE Envios
+		SET FechaAsignacion = GETDATE()
+		WHERE ID IN (SELECT IDEnvio FROM inserted)
+END
+GO
+
+sp_settriggerorder @triggername = 'FechaAsignacion', @order = 'last', @stmttype = 'INSERT'
+
+			SELECT A.ID AS IDAlmacen, A.Capacidad, Sum(E.NumeroContenedores) AS Ocupado, A.Capacidad - Sum(E.NumeroContenedores) AS disponible From Almacenes AS A 
+			Inner Join Asignaciones As Ag ON A.ID = Ag.IDAlmacen
+			Inner Join Envios AS E ON Ag.IDEnvio = E.ID
+			Group By A.ID, A.Capacidad
+
+SELECT * FROM Envios
+SELECT * FROM Asignaciones
+
