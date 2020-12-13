@@ -91,7 +91,7 @@ public class MetodosAsignacionEnvios {
      * Entradas:
      * 		- ResultSet rsEnvios
      * 		- int id
-     * Precondiciones: No tiene
+     * Precondiciones: El ResultSet debe ser dinámico
      * Salidas: 
      * 		- int almacenFavorito
      * Postcondiciones: Se devolverá un int con el id del almacen preferido del envío solicitado.
@@ -149,7 +149,7 @@ public class MetodosAsignacionEnvios {
                 statement = conexion.createStatement();
 
 
-               estaAsignado = statement.execute(update);
+                statement.execute(update);
             }
             
             conexion.close();
