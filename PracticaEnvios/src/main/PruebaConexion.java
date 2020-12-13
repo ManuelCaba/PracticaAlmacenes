@@ -27,9 +27,16 @@ public class PruebaConexion
 			rsEnvios = metodos.listadoPedidosSinAsignar();
 			
 			try {
+				String formatoTabla = "| %-12s | %-12s | %-17s |\n";//Formato para mostrar los datos en forma de tabla
+				System.out.println("+--------------+--------------+-------------------+");
+				System.out.format(formatoTabla, "ID Almacen", "Contenedores", "Almacen favorito");	//Cabecera de la tabla
+				System.out.println("+--------------+--------------+-------------------+");
+				
 				while(rsEnvios.next())
 				{
-					System.out.println(rsEnvios.getInt(1)+" | "+rsEnvios.getInt(2)+" | "+rsEnvios.getInt(3));
+					//Filas de datos
+					System.out.format(formatoTabla, rsEnvios.getInt(1), rsEnvios.getInt(2), rsEnvios.getInt(3));
+					System.out.println("+--------------+--------------+-------------------+");
 				}
 				
 				idEnvio = validaciones.leerYValidarIDenvio();
