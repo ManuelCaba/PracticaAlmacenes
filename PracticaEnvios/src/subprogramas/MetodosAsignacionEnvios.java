@@ -149,7 +149,7 @@ public class MetodosAsignacionEnvios {
                 statement = conexion.createStatement();
 
 
-                statement.execute(update);
+                statement.executeUpdate(update);
             }
             
             conexion.close();
