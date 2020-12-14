@@ -167,6 +167,7 @@ public class MetodosAsignacionEnvios {
      * Signatura: public int almacenMasCercano(int idAlmacen);
      * Entradas:
      * 		- int idAlmacen
+     * 		- String almacenesComprobados
      * Precondiciones: No tiene
      * Salidas: 
      * 		- int idAlmacenMasCercano
