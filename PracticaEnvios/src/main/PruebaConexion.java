@@ -12,6 +12,8 @@ public class PruebaConexion
 	{
 		char opcion;
 		int idEnvio;
+		int idAlmacenFavorito;
+		String almacenesComprobados;
 		int idAlmacen = 0;
 		boolean envioAsignado = false;
 		ResultSet rsEnvios;
@@ -24,6 +26,7 @@ public class PruebaConexion
 		
 		while(opcion == 'S')
 		{
+			
 			rsEnvios = metodos.listadoPedidosSinAsignar();
 			
 			try {
@@ -43,20 +46,27 @@ public class PruebaConexion
 				
 				if(metodos.existeEnvio(rsEnvios, idEnvio))
 				{
+					almacenesComprobados = "";
+					idAlmacen = 0;
+					idAlmacenFavorito = 0;
+					
 					do
 					{
-						if(idAlmacen != 0 && !envioAsignado) //Si no se ha podido asignar en el anterior almacén
+						
+						if(idAlmacenFavorito != 0 && !envioAsignado) //Si no se ha podido asignar en el anterior almacén
 						{
 							
 							if(opcion == 'S') //Si aún quiere probar con otro almacén
 							{
 								//Buscar almacén más cercano
-								idAlmacen = metodos.almancenCercano(idAlmacen);
+								idAlmacen = metodos.almancenCercano(idAlmacenFavorito, almacenesComprobados);
+								almacenesComprobados += almacenesComprobados == "" ? idAlmacen : ","+idAlmacen;
 							}
 						}
 						else //Si todavía no se ha buscado su almacén favorito
 						{
-							idAlmacen = metodos.almacenFavorito(rsEnvios, idEnvio);
+							idAlmacenFavorito = metodos.almacenFavorito(rsEnvios, idEnvio);
+							idAlmacen = idAlmacenFavorito;
 						}
 						
 						if(idAlmacen != -1) //Si hay almacenes para asignar disponibles
@@ -87,7 +97,6 @@ public class PruebaConexion
 					}
 					while(idAlmacen != 0 && !envioAsignado && opcion == 'S');
 					
-					idAlmacen = 0;
 				}
 				else
 				{

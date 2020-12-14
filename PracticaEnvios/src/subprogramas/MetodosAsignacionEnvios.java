@@ -173,7 +173,7 @@ public class MetodosAsignacionEnvios {
      * Postcondiciones: Se devolverá el id del almacén mas cercano. En caso de no encontrarse
      * devolverá -1.
      **********************************************************************************************/
-	public int almancenCercano(int idAlmacen) {
+	public int almancenCercano(int idAlmacen, String almacenesComprobados) {
 		
 		int idAlmacenMasCercano = -1;
 		String query;
@@ -186,16 +186,19 @@ public class MetodosAsignacionEnvios {
         	
             if(conexion != null)
             {
-                query = "SELECT D.IDAlmacen2 FROM Distancias AS D\r\n" + 
+                query = "SELECT CASE D.IDAlmacen2 WHEN "+idAlmacen+" THEN D.IDAlmacen1 ELSE D.IDAlmacen2 END FROM Distancias AS D\r\n" + 
                 		"INNER JOIN\r\n" + 
                 		"(\r\n" + 
-                		"	SELECT IDAlmacen1, MIN(Distancia) AS MinimaDistancia FROM Distancias\r\n" + 
-                		"	GROUP BY IDAlmacen1\r\n" + 
-                		") AS M ON D.Distancia = M.MinimaDistancia AND D.IDAlmacen1 = M.IDAlmacen1\r\n" + 
-                		"WHERE D.IDAlmacen1 = "+idAlmacen;
+                		"	SELECT MIN(Distancia) AS MinimaDistancia FROM Distancias WHERE (IDAlmacen1 = "+idAlmacen+" OR IDAlmacen2 = "+idAlmacen+")";
+                
+                if(!almacenesComprobados.equals(""))
+                {
+                	query += " AND (IDAlmacen1 NOT IN("+almacenesComprobados+") AND IDAlmacen2 NOT IN("+almacenesComprobados+"))";
+                }
+                
+                query += " )AS M ON D.Distancia = M.MinimaDistancia WHERE D.IDAlmacen1 = "+idAlmacen+" OR D.IDAlmacen2 = "+idAlmacen;
                 
                 statement = conexion.createStatement();
-
 
                 rsAlmacenMasCercano = statement.executeQuery(query);
                 

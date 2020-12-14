@@ -29,24 +29,6 @@ GO
 
 sp_settriggerorder @triggername = 'FechaAsignacion', @order = 'last', @stmttype = 'INSERT'
 
-			SELECT A.ID AS IDAlmacen, A.Capacidad, Sum(E.NumeroContenedores) AS Ocupado, A.Capacidad - Sum(E.NumeroContenedores) AS disponible From Almacenes AS A 
-			Inner Join Asignaciones As Ag ON A.ID = Ag.IDAlmacen
-			Inner Join Envios AS E ON Ag.IDEnvio = E.ID
-			Group By A.ID, A.Capacidad
-
-SELECT * FROM Envios
-SELECT * FROM Asignaciones
-
-SELECT D.IDAlmacen2 FROM Distancias AS D
-INNER JOIN
-(
-	SELECT IDAlmacen1, MIN(Distancia) AS MinimaDistancia FROM Distancias
-	GROUP BY IDAlmacen1
-) AS M ON D.Distancia = M.MinimaDistancia AND D.IDAlmacen1 = M.IDAlmacen1
-WHERE D.IDAlmacen1 = 20
-
-SELECT * FROM Distancias
-
 
 
 
